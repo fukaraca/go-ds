@@ -19,8 +19,8 @@ type VertexD struct {
 }
 
 type Arc struct {
-	From *VertexD
-	To   *VertexD
+	From *VertexD //importer side of the arrow
+	To   *VertexD //exporter side of the arrow
 }
 
 //NewDirected return a new directed graph
@@ -52,6 +52,9 @@ func (d *directedGraph) AddVertex(id int) error {
 func (d *directedGraph) AddArc(from, to int) error {
 	if !d.IsExist(from) || !d.IsExist(to) {
 		return fmt.Errorf("at least one of the vertice(%d or/and %d ) is not exist", from, to)
+	}
+	if ok, _ := d.IsAdjacent(from, to); ok {
+		return fmt.Errorf("there is already arc from %d to %d", from, to)
 	}
 	neoArc := &Arc{}
 	neoArc.From = d.Vertice[from]
@@ -128,6 +131,33 @@ func (d *directedGraph) GetArcs(id int) (map[*Arc]bool, error) {
 
 }
 
+/*GetAdjacents returns all adjacents of the given vertex as struct. This struct has 2 fields;
+
+importer: arrow of the arc(edge) points outward,
+
+exporter: arrow of the arc(edge) points inward .*/
+func (d *directedGraph) GetAdjacents(id int) (*struct {
+	Importers []*VertexD //Adjacent list which has a relation FROM given id vertex. To clarify vertex[id] -> vertex[importer]
+	Exporters []*VertexD //Adjacent list which has relation TO given id vertex. To clarify vertex[id] <- vertex[exporter]
+}, error) {
+	if !d.IsExist(id) {
+		return nil, fmt.Errorf("there is no such vertex with id:%d", id)
+	}
+	temp := &struct {
+		Importers []*VertexD //Adjacent list which has a relation FROM given id vertex
+		Exporters []*VertexD //Adjacent list which has relation TO given id vertex
+	}{}
+	for k, from := range d.Vertice[id].Arcs {
+		fmt.Println(&k.From, from)
+		if from {
+			temp.Importers = append(temp.Importers, k.To)
+		} else {
+			temp.Exporters = append(temp.Exporters, k.From)
+		}
+	}
+	return temp, nil
+}
+
 //Len returns total number of arcs and vertices
 func (d *directedGraph) Len() struct {
 	VertLen int
@@ -143,7 +173,13 @@ func (d *directedGraph) Len() struct {
 //NotAdjacent error occurs when there is no adjacent found
 var NotAdjacent = fmt.Errorf("not adjacent")
 
-//IsAdjacent returns true in case id1>id2 , returns false if id1<id2 also returns graphs.NotAdjacent error if they are not adjacent
+/*IsAdjacent returns boolean and error, if any.
+
+In case of id1->id2 returns true and nil,
+
+inc ase of id1<-id2 returns false and nil,
+
+if there is no adjacency between them returns false and graphs.NotAdjacent error*/
 func (d *directedGraph) IsAdjacent(id1, id2 int) (bool, error) {
 	if !d.IsExist(id1) || !d.IsExist(id2) {
 		return false, fmt.Errorf("at least one of the vertice(%d or/and %d ) is not exist", id1, id2)
