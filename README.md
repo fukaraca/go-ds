@@ -7,6 +7,8 @@ It will be updated by time. Data structures that supported for now is given belo
 - Stacks
 - Queues
 - Linked Lists
+- Directed Graphs
+- Undirected Graphs
 
 ```
 go get github.com/fukaraca/go-ds
