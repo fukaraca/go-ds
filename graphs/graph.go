@@ -223,15 +223,168 @@ func (d *directedGraph) IsAdjacent(id1, id2 int) (bool, error) {
 }
 
 //UndirectedGraph is a struct for undirected graph
-type UndirectedGraph struct {
+type undirectedGraph struct {
+	Vertice map[int]*VertexU
+	edgeLen int
+	vertlen int
+	lock    *sync.Mutex
 }
 
-type vertexU struct {
-	id     int
-	degree int // total number of edges
+type VertexU struct {
+	Id     int
+	Degree int           // total number of edges
+	Edges  map[int]*Edge // map[ adjacent-vertex-id ] edge
 }
-type edge struct {
-	adjacents []*vertexU
+type Edge struct {
+	Adjacents map[int]*VertexU // map[vertex-id]vertex-pointer
+}
+
+//NewUndirected creates a new undirected graph and returns
+func NewUndirected() *undirectedGraph {
+	temp := make(map[int]*VertexU)
+	return &undirectedGraph{
+		Vertice: temp,
+		edgeLen: 0, //total count of edges
+		vertlen: 0, //total count of vertices
+		lock:    &sync.Mutex{},
+	}
+}
+
+//AddVertex creates a new vertex
+func (g *undirectedGraph) AddVertex(id int) error {
+	if g.IsExist(id) {
+		return fmt.Errorf("vertex %d couldn't be added because already exist", id)
+	}
+	g.lock.Lock()
+	tempEdges := make(map[int]*Edge)
+	g.Vertice[id] = &VertexU{
+		Id:     id,
+		Degree: 0,
+		Edges:  tempEdges,
+	}
+	g.vertlen++
+	g.lock.Unlock()
+	return nil
+}
+
+//AddEdge creates a new edge and connects to given vertices
+func (g *undirectedGraph) AddEdge(id1, id2 int) error {
+	if !g.IsExist(id1) || !g.IsExist(id2) {
+		return fmt.Errorf("at least one of id's is not exist: %d, %d", id1, id2)
+	}
+	if ok, err := g.IsAdjacent(id1, id2); ok || (!ok && err != NotAdjacentError) {
+		if ok {
+			return fmt.Errorf("%d and %d is already adjacent", id1, id2)
+		} else {
+			return err
+		}
+	}
+	g.lock.Lock()
+	tempEdge := &Edge{Adjacents: make(map[int]*VertexU)}
+	tempEdge.Adjacents[id1], tempEdge.Adjacents[id2] = g.Vertice[id1], g.Vertice[id2]
+	g.Vertice[id1].Edges[id2] = tempEdge //key is adjacent id value is edge itself
+	g.Vertice[id1].Degree++
+	g.Vertice[id2].Edges[id1] = tempEdge
+	g.Vertice[id2].Degree++
+	g.edgeLen++
+	g.lock.Unlock()
+	return nil
+}
+
+//RemoveVertex deletes given vertex and associated edges
+func (g *undirectedGraph) RemoveVertex(id int) error {
+	if !g.IsExist(id) {
+		return fmt.Errorf("vertex couldn't be removed because given id is not exist")
+	}
+	g.lock.Lock()
+
+	for adj, _ := range g.Vertice[id].Edges {
+		delete(g.Vertice[adj].Edges, adj)
+		g.Vertice[adj].Degree--
+		g.edgeLen--
+	}
+	delete(g.Vertice, id)
+	g.vertlen--
+	g.lock.Unlock()
+	return nil
+}
+
+//RemoveEdge deletes given edge from related vertices
+func (g *undirectedGraph) RemoveEdge(id1, id2 int) error {
+	if !g.IsExist(id1) || !g.IsExist(id2) {
+		return fmt.Errorf("at least one of id's is not exist: %d, %d", id1, id2)
+	}
+	ok, err := g.IsAdjacent(id1, id2)
+	if !ok {
+		return err
+	}
+
+	g.lock.Lock()
+	delete(g.Vertice[id1].Edges, id2)
+	g.Vertice[id1].Degree--
+	delete(g.Vertice[id2].Edges, id1)
+	g.Vertice[id2].Degree--
+	g.edgeLen--
+	g.lock.Unlock()
+
+	return nil
+}
+
+//GetAdjacents returns adjacent vertice id' s.
+func (g *undirectedGraph) GetAdjacents(id int) ([]int, error) {
+	if !g.IsExist(id) {
+		return nil, fmt.Errorf("list couldn't be gotten because given id is not exist")
+	}
+	ret := []int{}
+	for adj, _ := range g.Vertice[id].Edges {
+		ret = append(ret, adj)
+	}
+	return ret, nil
+}
+
+//GetVertex returns given vertex
+func (g *undirectedGraph) GetVertex(id int) (*VertexU, error) {
+	if !g.IsExist(id) {
+		return nil, fmt.Errorf("vertex couldn't be gotten because given id is not exist")
+	}
+	return g.Vertice[id], nil
+}
+
+//GetEdge returns edge that associated given vertices
+func (g *undirectedGraph) GetEdge(id1, id2 int) (*Edge, error) {
+	ok, err := g.IsAdjacent(id1, id2)
+	if !ok {
+		return nil, err
+	}
+	return g.Vertice[id1].Edges[id2], nil
+}
+
+/*IsAdjacent returns true and nil if two vertex is adjacent.
+
+if there is no adjacency between them returns false and graphs.NotAdjacentError error*/
+func (g *undirectedGraph) IsAdjacent(id1, id2 int) (bool, error) {
+	if !g.IsExist(id1) || !g.IsExist(id2) {
+		return false, fmt.Errorf("at least one of id's is not exist: %d, %d", id1, id2)
+	}
+	if _, ok := g.Vertice[id1].Edges[id2]; ok {
+		return true, nil
+	}
+	return false, NotAdjacentError
+}
+
+//IsExist method return true if given vertex id exists
+func (g *undirectedGraph) IsExist(id int) bool {
+	_, ok := g.Vertice[id]
+	return ok
+}
+
+//Len returns total count of edges and vertices for related undirected graph. For adjacent count use GetAdjacents function.
+func (g *undirectedGraph) Len() (ret struct {
+	VertexLength int
+	EdgeLength   int
+}) {
+	ret.EdgeLength, ret.VertexLength = g.edgeLen, g.vertlen
+	return ret
 }
 
 /*
