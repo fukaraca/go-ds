@@ -269,9 +269,6 @@ func (g *undirectedGraph) AddVertex(id int) error {
 
 //AddEdge creates a new edge and connects to given vertices
 func (g *undirectedGraph) AddEdge(id1, id2 int) error {
-	if !g.IsExist(id1) || !g.IsExist(id2) {
-		return fmt.Errorf("at least one of id's is not exist: %d, %d", id1, id2)
-	}
 	if ok, err := g.IsAdjacent(id1, id2); ok || (!ok && err != NotAdjacentError) {
 		if ok {
 			return fmt.Errorf("%d and %d is already adjacent", id1, id2)
@@ -297,9 +294,8 @@ func (g *undirectedGraph) RemoveVertex(id int) error {
 		return fmt.Errorf("vertex couldn't be removed because given id is not exist")
 	}
 	g.lock.Lock()
-
 	for adj, _ := range g.Vertice[id].Edges {
-		delete(g.Vertice[adj].Edges, adj)
+		delete(g.Vertice[adj].Edges, id)
 		g.Vertice[adj].Degree--
 		g.edgeLen--
 	}
@@ -311,10 +307,10 @@ func (g *undirectedGraph) RemoveVertex(id int) error {
 
 //RemoveEdge deletes given edge from related vertices
 func (g *undirectedGraph) RemoveEdge(id1, id2 int) error {
-	if !g.IsExist(id1) || !g.IsExist(id2) {
-		return fmt.Errorf("at least one of id's is not exist: %d, %d", id1, id2)
-	}
-	ok, err := g.IsAdjacent(id1, id2)
+	/*	if !g.IsExist(id1) || !g.IsExist(id2) {
+			return fmt.Errorf("at least one of id's is not exist: %d, %d", id1, id2)
+		}
+	*/ok, err := g.IsAdjacent(id1, id2)
 	if !ok {
 		return err
 	}
