@@ -9,6 +9,7 @@ It will be updated by time. Data structures that supported for now is given belo
 - Linked Lists
 - Directed Graphs
 - Undirected Graphs
+- Binary Search Tree 
 
 ```
 go get github.com/fukaraca/go-ds
