@@ -255,8 +255,64 @@ func (b *binarySearchTree) InorderTraversal() []int {
 			travers(node.Right)
 		}
 	}
-	travers(b.Root.Left)
-	inorderList = append(inorderList, b.Root.Value)
-	travers(b.Root.Right)
+	travers(b.Root)
 	return inorderList
+}
+
+//Height function returns BST's height
+func (b *binarySearchTree) Height() int {
+	if b.Root.Left == nil && b.Root.Right == nil {
+		return 1
+	}
+	height := 0
+	var travers func(*Node)
+
+	travers = func(node *Node) {
+
+		if node.Left != nil {
+			travers(node.Left)
+		}
+		if node.Left == nil && node.Right == nil { //base case
+			ret := b.CountHeight(node.Value)
+			if ret > height {
+				height = ret
+			}
+		}
+		if node.Left != nil && node.Right == nil { //second case
+		}
+		if node.Right != nil { //third case
+			travers(node.Right)
+		}
+	}
+	travers(b.Root)
+	return height
+
+}
+
+//CountHeight is helper function for Height()
+func (b *binarySearchTree) CountHeight(value int) int {
+
+	counter := 0
+	var searcher func(*Node, int) int
+
+	searcher = func(root *Node, val int) int {
+
+		switch {
+		case root == nil:
+			return counter
+		case root.Value == val:
+			break
+		case root.Value < val:
+			counter++
+			counter = searcher(root.Right, val)
+		case root.Value > val:
+			counter++
+			counter = searcher(root.Left, val)
+		}
+		return counter
+	}
+
+	searcher(b.Root, value)
+
+	return counter
 }

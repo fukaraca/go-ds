@@ -65,7 +65,8 @@ func TestNewBinarySearchTree(t *testing.T) {
 		80, 83, 84, 85, 90, 94, 99}
 	gOt := qw1.InorderTraversal()
 	assert.Equal(t, expected, gOt, "it is expected to get: gOt list for inorder traversal")
-
+	//height
+	assert.Equal(t, 8, qw1.Height(), " it is expected to return 8 for height of the tree")
 	//delete
 	err := qw1.Delete(90)
 	assert.Equal(t, nil, err, "it is expected to return nil err")
@@ -113,4 +114,5 @@ func TestNewBinarySearchTree(t *testing.T) {
 		}
 	}
 	assert.Equal(t, true, qw2.Root.Right == nil && qw2.Root.Left == nil, "it is expected to get an empty BTS")
+
 }
