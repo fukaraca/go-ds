@@ -1,6 +1,6 @@
 # Go-DS
 
-Basicly data structures package written with Go. Mostly for learning purposes.  
+Basicly, data structures package written with Go.  
 
 It will be updated by time. Data structures that supported for now is given below.
 
