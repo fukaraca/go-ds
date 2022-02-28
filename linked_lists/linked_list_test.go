@@ -22,7 +22,7 @@ func TestNewLinkedList(t *testing.T) {
 	qw.InsertAtHead("5")
 	qw.InsertAtTail("13")
 	qw.InsertAtTail("14")
-	assert.Equal(t, 7, qw.Len(), "it is expected to return 7")
+	assert.Equal(t, 7, *qw.Len(), "it is expected to return 7")
 	gotNode, _ := qw.Get(4)
 	assert.Equal(t, "1", gotNode.Data.(string), "it is expected to return '1'")
 	_, err = qw.Get(100)
@@ -43,7 +43,7 @@ func TestNewLinkedList(t *testing.T) {
 	qw.Delete(wantTail)
 	assert.Equal(t, "13", qw.Tail.Data.(string), "it is expected to get string 13 data for tail")
 	//to achieve %100 coverage
-	for qw.Len() > 0 {
+	for *qw.Len() > 0 {
 		qw.DeleteAtHead()
 	}
 	qw.InsertAtTail("insert to tail")

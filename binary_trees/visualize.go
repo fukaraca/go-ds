@@ -1,3 +1,6 @@
+//go:build !test
+// +build !test
+
 package binary_trees
 
 import (
@@ -5,9 +8,12 @@ import (
 	"github.com/fatih/color"
 )
 
-//Visualize basicly displays the tree for testing purpose. There are issues related with concatenation for inner branches. It' is useful when inserted carefully.
+//Visualize basicly displays the tree for testing purpose.
+//There are issues related with crossing-over of inner branches. It' is useful when inserted carefully.
+//Since this is not directly related with package itself
 func (b *binarySearchTree) Visualize(size int) string {
 	var returnee string
+	var returneeS string
 	var travers func(*Node)
 	grid := make([][]int, size)
 	for i := range grid {
@@ -63,7 +69,7 @@ func (b *binarySearchTree) Visualize(size int) string {
 
 	//repositioning starting point to left child
 	traveler.r++
-	traveler.c -= size / 2 //this is for averting concatenation of inner nodes.
+	traveler.c-- //this is for averting concatenation of inner nodes.
 	travers(b.Root.Left)
 	//reposition to root
 	traveler.r = 0
@@ -71,21 +77,23 @@ func (b *binarySearchTree) Visualize(size int) string {
 	grid[traveler.r][traveler.c] = b.Root.Value
 	//reposition to right child
 	traveler.r++
-	traveler.c += size / 2 //this is for averting concatenation of inner nodes
+	traveler.c++ //this is for averting concatenation of inner nodes
 	travers(b.Root.Right)
 	//visualize the grid
 	for i := range grid {
 		for _, el := range grid[i] {
 			if el > 0 {
 				returnee += color.BlueString("%02d  ", el)
-				//returnee += fmt.Sprintf("%02d  ", el)
+				returneeS += fmt.Sprintf("%02d  ", el)
 			} else {
 				returnee += color.BlackString("%s  ", " ")
-				//returnee += fmt.Sprintf("%02s  ", " ")
+				returneeS += fmt.Sprintf("%02s  ", " ")
 			}
 
 		}
-		returnee += fmt.Sprintf("\n")
+		returnee += fmt.Sprintf("\n")  //colored
+		returneeS += fmt.Sprintf("\n") //non-colored
+
 	}
-	return returnee
+	return returneeS
 }

@@ -115,4 +115,31 @@ func TestNewBinarySearchTree(t *testing.T) {
 	}
 	assert.Equal(t, true, qw2.Root.Right == nil && qw2.Root.Left == nil, "it is expected to get an empty BTS")
 
+	//Visualizer fails for some cases due to crossing-over of inner branches.
+	//Since it is not directly related with go-ds package, i didn't delete.
+	qw3 := NewBinarySearchTree(10)
+	qw3.Insert(9)
+	qw3.Insert(8)
+	qw3.Insert(6)
+	qw3.Insert(7)
+	qw3.Insert(5)
+	qw3.Insert(11)
+	qw3.Insert(12)
+	qw3.Insert(14)
+	qw3.Insert(13)
+	qw3.Insert(15)
+	visual := qw3.Visualize(10)
+	expectedVisual := `0   0   0   0   0   10  0   0   0   0   
+0   0   0   0   09  0   11  0   0   0   
+0   0   0   08  0   0   0   12  0   0   
+0   0   06  0   0   0   0   0   14  0   
+0   05  0   07  0   0   0   13  0   15  
+0   0   0   0   0   0   0   0   0   0   
+0   0   0   0   0   0   0   0   0   0   
+0   0   0   0   0   0   0   0   0   0   
+0   0   0   0   0   0   0   0   0   0   
+0   0   0   0   0   0   0   0   0   0   
+`
+	assert.Equal(t, expectedVisual, visual)
+
 }

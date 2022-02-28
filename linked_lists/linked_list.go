@@ -81,9 +81,10 @@ func (l *LinkedList) Delete(nood *Node) {
 	if l.len != 0 {
 		l.lock.Lock()
 		defer l.lock.Unlock()
-		//for the sake of for loops functionality, we need to be sure head is not match to be deleted
+		//for the sake of for loops functionality, we need to be sure head is not node to be deleted
 		if l.Head == nood {
 			l.Head = l.Head.Next
+			l.Head.Previous = nil
 			l.len--
 			return
 		}
@@ -95,10 +96,10 @@ func (l *LinkedList) Delete(nood *Node) {
 				return
 			}
 			temp = temp.Next
-
 		}
 		if l.Tail == nood {
 			l.Tail = l.Tail.Previous
+			l.Tail.Next = nil
 			l.len--
 			return
 		}
@@ -111,6 +112,9 @@ func (l *LinkedList) Delete(nood *Node) {
 func (l *LinkedList) DeleteAtHead() {
 	if l.len > 0 {
 		l.lock.Lock()
+		if l.len > 1 {
+			l.Head.Next.Previous = nil
+		}
 		l.Head = l.Head.Next
 		l.len--
 		l.lock.Unlock()
@@ -155,7 +159,7 @@ func (l *LinkedList) IsEmpty() bool {
 	return l.len == 0
 }
 
-//Len
-func (l *LinkedList) Len() int {
-	return l.len
+//Len returns node count of the list
+func (l *LinkedList) Len() *int {
+	return &l.len //pointer is for hash_table compatibility
 }
