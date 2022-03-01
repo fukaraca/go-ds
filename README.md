@@ -2,7 +2,7 @@
 
 Basicly, data structures package written with Go.  
 
-It will be updated by time. Data structures that supported for now is given below.
+Abstractly implemented data structures for now is given below. Any kind of feedback is appreciated.
 
 - Stacks
 - Queues
@@ -12,6 +12,7 @@ It will be updated by time. Data structures that supported for now is given belo
 - Binary Search Tree 
 - Tries
 - Hash Tables
+- Heaps
 
 ```
 go get github.com/fukaraca/go-ds
