@@ -2,7 +2,7 @@
 
 Basicly, data structures package written with Go.  
 
-Abstractly implemented data structures for now is given below. Any kind of feedback is appreciated.
+Abstractly implemented data structures for now is given below. 
 
 - Stacks
 - Queues
@@ -19,3 +19,5 @@ go get github.com/fukaraca/go-ds
 ```
 
 Total test coverage is %100.  
+
+Any kind of feedback is appreciated.

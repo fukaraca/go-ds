@@ -22,6 +22,7 @@ func NewMaxHeap() *maxHeap {
 	return &maxHeap{lock: &sync.Mutex{}}
 }
 
+//NewMinHeap returns a new maxHeap
 func NewMinHeap() *minHeap {
 	return &minHeap{lock: &sync.Mutex{}}
 }
@@ -32,7 +33,8 @@ func (h *maxHeap) Insert(key int) {
 	h.array = append(h.array, key)
 	h.length++
 	child := h.length - 1
-
+	//insert at the end,
+	//and keep going up as long as key>parent
 	for key > h.array[parent(child)] {
 		par := parent(child)
 		h.array[par], h.array[child] = h.array[child], h.array[par]
@@ -47,7 +49,8 @@ func (h *minHeap) Insert(key int) {
 	h.array = append(h.array, key)
 	h.length++
 	child := h.length - 1
-
+	//insert at the end,
+	//and keep going up as long as key<parent
 	for key < h.array[parent(child)] {
 		par := parent(child)
 		h.array[par], h.array[child] = h.array[child], h.array[par]
@@ -69,7 +72,7 @@ func (h *maxHeap) Delete(key int) error {
 	h.array[ind] = h.array[h.length-1]
 	h.array = h.array[:h.length-1]
 	h.length--
-
+	//heapify
 	h.array = BuildMaxHeap(h.array...).array
 	h.lock.Unlock()
 	return nil
@@ -88,7 +91,7 @@ func (h *minHeap) Delete(key int) error {
 	h.array[ind] = h.array[h.length-1]
 	h.array = h.array[:h.length-1]
 	h.length--
-
+	//heapify
 	h.array = BuildMinHeap(h.array...).array
 	h.lock.Unlock()
 	return nil
@@ -120,7 +123,8 @@ func (h *minHeap) Search(key int) (bool, int) {
 	return false, -1
 }
 
-//SearchForLatest returns total count of given key and its encountered latest index if exist. In case of absence, returns -1,-1.
+//SearchForLatest returns total count of given key and its encountered latest index if exist.
+//In case of absence, returns -1,-1. This is useful especially for larger heaps
 func (h *maxHeap) SearchForLatest(key int) (int, int) {
 	if h.length == 0 {
 		return -1, -1
@@ -128,7 +132,6 @@ func (h *maxHeap) SearchForLatest(key int) (int, int) {
 	count := 0
 	found := -1
 	var lookUp func(int) (bool, int)
-
 	lookUp = func(i int) (bool, int) {
 		if key > h.array[i] { //return if search key is bigger than subRoot
 			return false, -1
@@ -141,26 +144,10 @@ func (h *maxHeap) SearchForLatest(key int) (int, int) {
 		}
 		l, r := leftChild(i), rightChild(i)
 		if h.length > l {
-			lookUp((l))
-			/*			ok, ind := lookUp(l)
-						if ok {
-						count++
-						if ind >= found {
-							found = ind
-							return true, ind
-						}
-			}*/
+			lookUp(l)
 		}
 		if h.length > r {
 			lookUp(r)
-			/*			ok, ind := lookUp(r)
-						if ok {
-						count++
-						if ind >= found {
-							found = ind
-							return true, found
-						}
-					}*/
 		}
 		return false, -1
 	}
